@@ -64,8 +64,6 @@ class redis::config {
         owner  => $::redis::config_owner,
       }
 
-      $service_provider_lookup = pick(getvar_emptystring('service_provider'), false)
-
       if $service_provider_lookup != 'systemd' {
         case $::operatingsystem {
           'Debian': {
@@ -81,16 +79,6 @@ class redis::config {
           owner  => $::redis::config_owner,
           group  => $::redis::config_group,
           mode   => $var_run_redis_mode,
-        }
-      }
-
-      if $service_provider_lookup == 'systemd' {
-        file { '/usr/bin/redis-shutdown':
-          ensure  => file,
-          owner   => 'root',
-          group   => 'root',
-          mode    => '0755',
-          content => template('redis/redis-shutdown.erb'),
         }
       }
 

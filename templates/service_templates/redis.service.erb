@@ -7,8 +7,6 @@ Wants=network-online.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/redis-server <%= @redis_file_name %> --supervised systemd
-ExecStop=/usr/libexec/redis-shutdown <%= @redis_server_name %>
-TimeoutStopSec=0
 Restart=always
 User=<%= @service_user %>
 Group=<%= @service_user %>
