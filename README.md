@@ -16,6 +16,33 @@
 include ::redis
 ```
 
+### Instances
+
+```puppet
+    $listening_ports = [6379,6380,6381,6382]
+
+    class { '::redis':
+      default_install => false,
+      service_enable  => false,
+      service_ensure  => 'stopped',
+      default_install => false,
+    }
+
+    $listening_ports.each |$port| {
+      $port_string = sprintf('%d',$port)
+      redis::instance { $port_string:
+        service_enable => true,
+        service_ensure => 'running',
+        port           => $port,
+        bind           => $facts['networking']['ip'],
+        dbfilename     => "${port}-dump.rdb",
+        appendfilename => "${port}-appendonly.aof",
+        appendfsync    => 'always',
+        require        => Class['Redis'],
+      }
+    }
+```
+
 ### Master node
 
 ```puppet
