@@ -102,6 +102,9 @@ class redis::params {
   $cluster_enabled        = false
   $cluster_config_file    = 'nodes.conf'
   $cluster_node_timeout   = 5000
+  $cluster_slave_validity_factor = 0
+  $cluster_require_full_coverage = true
+  $cluster_migration_barrier = 1
 
   case $::osfamily {
     'Debian': {
@@ -149,7 +152,7 @@ class redis::params {
               $minimum_version           = '3.0.3'
             }
             default: {
-              warning("Ubuntu release ${::operatingsystemmajrelease} isn't 'officially' supported by module, but will git it a shot")
+              warning("Ubuntu release ${::operatingsystemmajrelease} isn't 'officially' supported by module, but will give it a shot")
               $minimum_version           = '2.8.5'
             }
           }

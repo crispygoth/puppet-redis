@@ -1,10 +1,18 @@
 require 'spec_helper'
 
 describe 'redis', type: :class do
+  let(:service_file) { redis_service_file(service_provider: facts[:service_provider]) }
+
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
-        facts.merge(redis_server_version: '3.2.3')
+        merged_facts = facts.merge(redis_server_version: '3.2.3')
+
+        if facts[:operatingsystem].casecmp('archlinux') == 0
+          merged_facts = merged_facts.merge(service_provider: 'systemd')
+        end
+
+        merged_facts
       end
 
       let(:package_name) { manifest_vars[:package_name] }
@@ -722,13 +730,13 @@ describe 'redis', type: :class do
       describe 'with parameter repl_ping_slave_period' do
         let(:params) do
           {
-            repl_ping_slave_period: 1
+            repl_ping_slave_period: 42
           }
         end
 
         it {
           is_expected.to contain_file(config_file_orig).with(
-            'content' => %r{repl-ping-slave-period.*1}
+            'content' => %r{^repl-ping-slave-period 42}
           )
         }
       end
@@ -1189,6 +1197,90 @@ describe 'redis', type: :class do
           is_expected.to contain_file(config_file_orig).with(
             'content' => %r{cluster-node-timeout.*_VALUE_}
           )
+        }
+      end
+
+      describe 'with parameter cluster_config_file' do
+        let(:params) do
+          {
+            cluster_enabled: true,
+            cluster_slave_validity_factor: 1
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{cluster-slave-validity-factor.*1}
+          )
+        }
+      end
+
+      describe 'with parameter cluster_config_file' do
+        let(:params) do
+          {
+            cluster_enabled: true,
+            cluster_require_full_coverage: true
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{cluster-require-full-coverage.*yes}
+          )
+        }
+      end
+
+      describe 'with parameter cluster_config_file' do
+        let(:params) do
+          {
+            cluster_enabled: true,
+            cluster_require_full_coverage: false
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{cluster-require-full-coverage.*no}
+          )
+        }
+      end
+
+      describe 'with parameter cluster_config_file' do
+        let(:params) do
+          {
+            cluster_enabled: true,
+            cluster_migration_barrier: 1
+          }
+        end
+
+        it {
+          is_expected.to contain_file(config_file_orig).with(
+            'content' => %r{cluster-migration-barrier.*1}
+          )
+        }
+      end
+
+      describe 'with parameter manage_service_file' do
+        let(:params) do
+          {
+            manage_service_file: true
+          }
+        end
+
+        it {
+          is_expected.to contain_file(service_file)
+        }
+      end
+
+      describe 'with parameter manage_service_file' do
+        let(:params) do
+          {
+            manage_service_file: false
+          }
+        end
+
+        it {
+          is_expected.not_to contain_file(service_file)
         }
       end
     end
