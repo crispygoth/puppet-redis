@@ -1,7 +1,5 @@
-# = Class: redis::config
-#
-# This class provides configuration for Redis.
-#
+# @summary This class provides configuration for Redis.
+# @api private
 class redis::config {
 
   File {
@@ -33,9 +31,11 @@ class redis::config {
     redis::instance {'default':
       pid_file            => $redis::pid_file,
       log_file            => $redis::log_file,
-      manage_service_file => $redis::manage_service_file,
       unixsocket          => $redis::unixsocket,
       workdir             => $redis::workdir,
+      daemonize           => $redis::daemonize,
+      service_name        => $redis::service_name,
+      manage_service_file => $redis::manage_service_file,
     }
   }
 
@@ -43,9 +43,9 @@ class redis::config {
     contain redis::ulimit
   }
 
-  $service_provider_lookup = pick(getvar('service_provider'), false)
+  $service_provider_lookup = fact('service_provider')
 
-  unless $facts['osfamily'] == 'Debian' or $service_provider_lookup == 'systemd' {
+  unless $facts['os']['family'] == 'Debian' or $service_provider_lookup == 'systemd' {
     file { '/var/run/redis':
       ensure => 'directory',
       owner  => $redis::config_owner,
@@ -55,10 +55,10 @@ class redis::config {
   }
 
   # Adjust /etc/default/redis-server on Debian systems
-  case $::osfamily {
+  case $facts['os']['family'] {
     'Debian': {
       file { '/etc/default/redis-server':
-        ensure => present,
+        ensure => file,
         group  => $redis::config_group,
         mode   => $redis::config_file_mode,
         owner  => $redis::config_owner,

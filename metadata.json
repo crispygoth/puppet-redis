@@ -1,6 +1,6 @@
 {
   "name": "puppet-redis",
-  "version": "4.2.1",
+  "version": "5.0.0",
   "author": "Vox Pupuli",
   "summary": "Redis module",
   "license": "Apache-2.0",
@@ -47,14 +47,14 @@
     {
       "operatingsystem": "Debian",
       "operatingsystemrelease": [
-        "8"
+        "9"
       ]
     },
     {
       "operatingsystem": "Ubuntu",
       "operatingsystemrelease": [
-        "14.04",
-        "16.04"
+        "16.04",
+        "18.04"
       ]
     },
     {
